@@ -2,7 +2,7 @@
 
 A machine-learning library for [Bend 2](https://bend-lang.com/).
 
-Available on [BendHub](https://hub.bend-lang.com/0x7e29b7224f420229b0320d908dff8769).
+Available on [BendHub](https://hub.bend-lang.com/0x53dde92df75268075f1bc6c33ecbb079).
 
 One model, a few shared building blocks, and examples you can change:
 
@@ -86,9 +86,9 @@ as `main.bend` and run `bend main.bend`; it prints `11`.
 
 ```bend
 import Base
-import 0x7e29b7224f420229b0320d908dff8769/src/batch.bend as Batch
-import 0x7e29b7224f420229b0320d908dff8769/src/stats.bend as Stats
-import 0x7e29b7224f420229b0320d908dff8769/src/linear_regression.bend as Linear
+import 0x53dde92df75268075f1bc6c33ecbb079/src/batch.bend as Batch
+import 0x53dde92df75268075f1bc6c33ecbb079/src/stats.bend as Stats
+import 0x53dde92df75268075f1bc6c33ecbb079/src/linear_regression.bend as Linear
 
 def show(result: Result<&2, &2, Linear.FitError, Linear.Model>) -> IO(Unit):
   match result:
@@ -109,7 +109,7 @@ content hashes, and uses the cached files on later runs. The first run requires
 network access. The hash pins this exact release; BendHub currently has no named
 packages or version numbers.
 
-The [published package](https://hub.bend-lang.com/0x7e29b7224f420229b0320d908dff8769)
+The [published package](https://hub.bend-lang.com/0x53dde92df75268075f1bc6c33ecbb079)
 contains all five `src/` modules, `LAWS.bend`, `PROOF.bend`, and the
 [`bend_ml.bend`](bend_ml.bend) publishing entry point, including the MIT license.
 Import the individual API modules as above. The entry point collects and checks

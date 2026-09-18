@@ -1,7 +1,7 @@
 import Base
-import 0x7e29b7224f420229b0320d908dff8769/src/batch.bend as Batch
-import 0x7e29b7224f420229b0320d908dff8769/src/stats.bend as Stats
-import 0x7e29b7224f420229b0320d908dff8769/src/linear_regression.bend as Linear
+import 0x53dde92df75268075f1bc6c33ecbb079/src/batch.bend as Batch
+import 0x53dde92df75268075f1bc6c33ecbb079/src/stats.bend as Stats
+import 0x53dde92df75268075f1bc6c33ecbb079/src/linear_regression.bend as Linear
 
 def show(result: Result<&2, &2, Linear.FitError, Linear.Model>) -> IO(Unit):
   match result:
