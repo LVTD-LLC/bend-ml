@@ -23,6 +23,12 @@ if [ "$readme_output" != 11 ]; then
   exit 1
 fi
 echo 'PASS: vendored README example'
+hub_output=$("$bend_bin" examples/from_hub.bend)
+if [ "$hub_output" != 11 ]; then
+  echo "BendHub example: expected 11, got $hub_output" >&2
+  exit 1
+fi
+echo 'PASS: published BendHub example'
 if [ "${1:-}" = --native ]; then
   mkdir -p build
   "$bend_bin" tests/test.bend -o build/tests

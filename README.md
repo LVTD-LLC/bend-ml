@@ -2,6 +2,8 @@
 
 A machine-learning library for [Bend 2](https://bend-lang.com/).
 
+Available on [BendHub](https://hub.bend-lang.com/0x7e29b7224f420229b0320d908dff8769).
+
 One model, a few shared building blocks, and examples you can change:
 
 - **Linear regression:** ordinary least squares for one feature, with a fitted intercept.
@@ -39,7 +41,7 @@ Prediction at x=10 (expected 21): 21
 
 `bend file.bend` uses the sequential JavaScript backend. No GPU or C compiler is needed for this first example; the Bend installer also installs Bun if needed.
 
-## Use it in your own Bend project
+## Use a Git checkout in your Bend project
 
 From your project's root, place the library in `vendor/`:
 
@@ -75,7 +77,61 @@ bend main.bend
 # 11
 ```
 
-Use the underscore in `vendor/bend_ml`: Bend 2.0.5 can generate invalid JavaScript for imported paths containing a hyphen. Imports are relative to the importing file. There is no registry package to install: the library uses a Git checkout and local Bend imports. Pin that checkout to a commit when you need reproducibility.
+Use the underscore in `vendor/bend_ml`: Bend 2.0.5 can generate invalid JavaScript for imported paths containing a hyphen. Imports are relative to the importing file. These instructions use a Git checkout and local Bend imports; [BendHub imports](#use-from-bendhub) are also available. Pin that checkout to a commit when you need reproducibility.
+
+## Use from BendHub
+
+No Git checkout or separate package installation is required. Save the following
+as `main.bend` and run `bend main.bend`; it prints `11`.
+
+```bend
+import Base
+import 0x7e29b7224f420229b0320d908dff8769/src/batch.bend as Batch
+import 0x7e29b7224f420229b0320d908dff8769/src/stats.bend as Stats
+import 0x7e29b7224f420229b0320d908dff8769/src/linear_regression.bend as Linear
+
+def show(result: Result<&2, &2, Linear.FitError, Linear.Model>) -> IO(Unit):
+  match result:
+    case Fail{error}:
+      IO.die(Unit, 1, Linear.error_message(error))
+    case Done{model}:
+      IO.print(F32.show(Linear.predict(model, 5.0)))
+
+def main() -> IO(Unit):
+  rows = Batch.from_list(Stats.Sample, [
+    Stats.Sample{1.0, 3.0}, Stats.Sample{2.0, 5.0},
+    Stats.Sample{3.0, 7.0}, Stats.Sample{4.0, 9.0}])
+  show(Linear.fit(rows))
+```
+
+Bend downloads the package into `~/.bend/lib` on the first run, verifies its
+content hashes, and uses the cached files on later runs. The first run requires
+network access. The hash pins this exact release; BendHub currently has no named
+packages or version numbers.
+
+The [published package](https://hub.bend-lang.com/0x7e29b7224f420229b0320d908dff8769)
+contains all five `src/` modules, `LAWS.bend`, `PROOF.bend`, and the
+[`bend_ml.bend`](bend_ml.bend) publishing entry point, including the MIT license.
+Import the individual API modules as above. The entry point collects and checks
+the modules and proofs; it does not re-export their APIs.
+
+To verify the published example from this repository:
+
+```sh
+bend examples/from_hub.bend
+```
+
+To publish a new release after making and testing changes:
+
+```sh
+./scripts/test.sh --native
+bend bend_ml.bend --publish
+```
+
+The publisher uploads the entry point and its imported source files. It does not
+upload benchmark results, generated binaries, or unrelated repository files.
+Changed package contents produce a new hash; update the documented imports and
+`examples/from_hub.bend` after verifying that new release.
 
 ## API
 
@@ -169,7 +225,7 @@ build/benchmark-venv/bin/python benchmark/run.py
 ## Tests and proofs
 
 ```sh
-./scripts/test.sh           # proofs, 19 tests, local and vendored README examples
+./scripts/test.sh           # proofs, 19 tests, local, vendored, and BendHub examples
 ./scripts/test.sh --native  # also compile and run tests on four CPU threads
 ```
 
