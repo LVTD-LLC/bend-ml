@@ -15,5 +15,5 @@ def rows(+depth: Nat, +start: U32) -> Batch.Batch<Stats.Sample>:
       Batch.Fork{a, b}
 
 def main() -> IO(Unit):
-  # ! permits GPU execution when the native binary is run with --gpu.
+  # ! uses an available GPU by default; --gpu off forces CPU execution.
   Example.report(Linear.fit!(rows(14n, 0)))
