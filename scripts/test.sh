@@ -10,6 +10,7 @@ case "${1:-}" in
   *) echo 'Usage: ./scripts/test.sh [--native]' >&2; exit 2 ;;
 esac
 "$bend_bin" PROOF.bend
+"$bend_bin" bend_ml.bend
 "$bend_bin" tests/test.bend
 "$bend_bin" examples/linear_regression.bend
 # Exercise the README verbatim as an external consumer, including import paths.
@@ -22,6 +23,12 @@ if [ "$readme_output" != 11 ]; then
   exit 1
 fi
 echo 'PASS: vendored README example'
+hub_output=$("$bend_bin" examples/from_hub.bend)
+if [ "$hub_output" != 11 ]; then
+  echo "BendHub example: expected 11, got $hub_output" >&2
+  exit 1
+fi
+echo 'PASS: published BendHub example'
 if [ "${1:-}" = --native ]; then
   mkdir -p build
   "$bend_bin" tests/test.bend -o build/tests

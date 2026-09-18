@@ -1,3 +1,6 @@
+# bend-ml: machine learning in Bend 2. Parallel linear regression, batches, statistics, and metrics.
+# https://github.com/LVTD-LLC/bend-ml
+
 import Base
 import ./src/batch.bend as Batch
 import ./src/linear_regression.bend as Linear
