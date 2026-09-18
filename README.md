@@ -45,16 +45,16 @@ From your project's root, place the library in `vendor/`:
 
 ```sh
 mkdir -p vendor
-git clone https://github.com/lvtd-llc/bend-ml.git vendor/bend-ml
+git clone https://github.com/lvtd-llc/bend-ml.git vendor/bend_ml
 ```
 
 Save this as `main.bend` in your project root:
 
 ```python
 import Base
-import ./vendor/bend-ml/src/batch.bend as Batch
-import ./vendor/bend-ml/src/stats.bend as Stats
-import ./vendor/bend-ml/src/linear_regression.bend as Linear
+import ./vendor/bend_ml/src/batch.bend as Batch
+import ./vendor/bend_ml/src/stats.bend as Stats
+import ./vendor/bend_ml/src/linear_regression.bend as Linear
 
 def show(result: Result<&2, &2, Linear.FitError, Linear.Model>) -> IO(Unit):
   match result:
@@ -75,7 +75,7 @@ bend main.bend
 # 11
 ```
 
-Imports are relative to the importing file. There is no registry package to install: this experiment uses a Git checkout and local Bend imports. Pin that checkout to a commit when you need reproducibility.
+Use the underscore in `vendor/bend_ml`: Bend 2.0.5 can generate invalid JavaScript for imported paths containing a hyphen. Imports are relative to the importing file. There is no registry package to install: this experiment uses a Git checkout and local Bend imports. Pin that checkout to a commit when you need reproducibility.
 
 ## API
 
@@ -133,7 +133,7 @@ These examples demonstrate execution modes, not speedups. Tiny datasets are like
 ## Tests and proofs
 
 ```sh
-./scripts/test.sh           # structural proofs, 19 tests, small example
+./scripts/test.sh           # proofs, 19 tests, local and vendored README examples
 ./scripts/test.sh --native  # also compile and run tests on four CPU threads
 ```
 
