@@ -10,6 +10,7 @@ case "${1:-}" in
   *) echo 'Usage: ./scripts/test.sh [--native]' >&2; exit 2 ;;
 esac
 "$bend_bin" PROOF.bend
+"$bend_bin" bend_ml.bend
 "$bend_bin" tests/test.bend
 "$bend_bin" examples/linear_regression.bend
 # Exercise the README verbatim as an external consumer, including import paths.
