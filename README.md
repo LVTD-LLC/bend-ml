@@ -1,6 +1,6 @@
 # bend-ml
 
-A small machine-learning experiment in [Bend 2](https://bend-lang.com/).
+A machine-learning library for [Bend 2](https://bend-lang.com/).
 
 One model, a few shared building blocks, and examples you can change:
 
@@ -9,7 +9,7 @@ One model, a few shared building blocks, and examples you can change:
 - **Statistics:** mergeable centered moments for training.
 - **Metrics:** mean squared error and floating-point comparison helpers.
 
-Tested with **Bend 2.0.5**. This is an early experiment, with no performance claims or external library dependencies beyond Bend's `Base`. It does not use legacy Bend 1 / HVM.
+Tested with **Bend 2.0.5**. The library has no external dependencies beyond Bend's `Base`. It does not use legacy Bend 1 / HVM.
 
 ## Install and try it
 
@@ -75,7 +75,7 @@ bend main.bend
 # 11
 ```
 
-Use the underscore in `vendor/bend_ml`: Bend 2.0.5 can generate invalid JavaScript for imported paths containing a hyphen. Imports are relative to the importing file. There is no registry package to install: this experiment uses a Git checkout and local Bend imports. Pin that checkout to a commit when you need reproducibility.
+Use the underscore in `vendor/bend_ml`: Bend 2.0.5 can generate invalid JavaScript for imported paths containing a hyphen. Imports are relative to the importing file. There is no registry package to install: the library uses a Git checkout and local Bend imports. Pin that checkout to a commit when you need reproducibility.
 
 ## API
 
@@ -104,7 +104,7 @@ The minimum sample count is checked first. `predict` and `predict_batch` use ord
 
 For metrics, create a `Batch<Metrics.Prediction>` of actual/predicted pairs and call `Metrics.mean_squared_error`. It returns `Some{value}`, or `None{}` for an empty batch or non-finite result. For example, pairs `(1, 2)` and `(3, 1)` have MSE `2.5`.
 
-## CPU parallelism and an optional GPU experiment
+## CPU and GPU execution
 
 The model merges centered statistics over independent subtrees using Bend's parallel call syntax. Batch prediction, mapping, and folding use the same structure.
 
@@ -116,19 +116,19 @@ bend examples/linear_regression.bend -o build/linear-regression
 ./build/linear-regression --threads 4
 ```
 
-`examples/parallel.bend` generates 16,384 rows on the same line and calls `Linear.fit!`. Compile it to experiment with GPU execution:
+`examples/parallel.bend` generates 16,384 rows on the same line and calls `Linear.fit!`. Compile it for native CPU or GPU execution:
 
 ```sh
 bend examples/parallel.bend -o build/parallel
-./build/parallel --threads 4
+./build/parallel --threads 4 --gpu off
 ./build/parallel --gpu 1GB
 ```
 
-The `!` build requires clang 19+ and the platform GPU toolchain: Metal on macOS, or CUDA 12 at `/usr/local/cuda` on Linux. Keep the generated `build/parallel.gpu` beside the executable. A GPU-capable binary can also run its work on the CPU without `--gpu`. Running this source directly with `bend` remains sequential JavaScript execution.
+The `!` build requires clang 19+ and the platform GPU toolchain: Metal on macOS, or CUDA 12 at `/usr/local/cuda` on Linux. Keep the generated `build/parallel.gpu` beside the executable. Bend 2.0.5 automatically uses an available GPU for `!` calls; pass `--gpu off` to force CPU execution. Running this source directly with `bend` remains sequential JavaScript execution.
 
 The 16,384-row example was also run successfully on native CPU and Metal GPU with Bend 2.0.5 on macOS. CUDA execution has not been tested.
 
-These examples demonstrate execution modes, not speedups. Tiny datasets are likely dominated by setup costs. No comparison against scikit-learn or optimized numerical libraries has been made.
+For measured comparisons against other implementations, see [Benchmarks](#benchmarks).
 
 ## Tests and proofs
 
@@ -150,7 +150,7 @@ These are not proofs of numerical accuracy or model quality. Floating-point beha
 
 - One feature and one target; no multiple regression, regularization, sample weights, missing-value handling, or model persistence yet.
 - Arithmetic is F32. Centered statistics avoid the most obvious cancellation in raw sum-of-squares formulas, but rounding, underflow, ill-conditioned data, and overflow still matter. Rescale inputs when appropriate.
-- This is intended for small experiments, well below 2^24 observations where F32 can no longer represent every integer count exactly.
+- Keep datasets well below 2^24 observations where F32 can no longer represent every integer count exactly.
 - `Batch.from_list` builds a balanced tree in O(n log n) time. It uses linked lists and allocated tree nodes, not packed numerical arrays. Training traverses that tree in O(n) work; construction and allocation costs are separate.
 - Constructing arbitrary `Fork` trees is supported, but strongly unbalanced trees reduce parallel efficiency. Floating-point results can differ with grouping.
 - Bend is evolving quickly. Its language guide (`bend guide`) and compiler errors are useful when a newer release changes behavior.
