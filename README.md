@@ -130,6 +130,42 @@ The 16,384-row example was also run successfully on native CPU and Metal GPU wit
 
 For measured comparisons against other implementations, see [Benchmarks](#benchmarks).
 
+## Benchmarks
+
+Measured locally on **Apple M2 Max: 12 CPU cores (8 performance + 4 efficiency), 38 GPU cores, 32 GB memory**, on AC power, macOS 26.5.2, September 18, 2026. Bend version: **2.0.5**.
+
+The workload is single-feature linear regression with an intercept on identical, synthetic float32 data. Times below are **median warmed fit latency in milliseconds**; lower is better. Each cell contains 45 measured fits across three fresh processes, after 20 warmups per process. Execution order was randomized with a fixed seed.
+
+| Implementation | 4,096 rows | 65,536 rows | 1,048,576 rows |
+| --- | ---: | ---: | ---: |
+| Bend CPU, 1 thread | 0.105 | 0.867 | 13.345 |
+| Bend CPU, 4 threads | 0.128 | 0.276 | 3.561 |
+| Bend CPU, 12 threads | 0.233 | 0.303 | 2.087 |
+| Bend Metal GPU | 0.735 | 0.860 | 1.907 |
+| scikit-learn LinearRegression (F32) | 0.229 | 0.834 | 8.337 |
+| NumPy centered OLS (F32) | 0.012 | 0.050 | 0.666 |
+| SciPy linregress (mixed F32/F64) | 0.164 | 0.221 | 1.091 |
+| MLX compiled OLS, CPU (F32) | 0.034 | 0.079 | 0.963 † |
+| MLX compiled OLS, Metal (F32) | 0.258 | 0.297 | 0.483 |
+| C pairwise OLS, 1 thread (F32) | 0.027 | 0.422 | 6.971 |
+| Node.js pairwise OLS, 1 thread (F32) | 0.118 | 1.695 | 23.351 |
+
+**What this run shows:** at one million rows, Bend on 12 CPU threads took about **one-quarter of scikit-learn’s fit time**. Bend CPU and Metal timings were similar; their p10–p90 ranges overlap. The specialized NumPy and MLX Metal formulas were faster than Bend. At 4,096 rows, Bend’s single-thread path beat its parallel paths.
+
+**Timing boundaries matter:** the table excludes data/tree construction, process startup, imports, compilation, and warmups. For example, constructing the one-million-row Bend GPU dataset took a median **33.951 ms** before fitting. These are repeated-fit measurements on reused data, not one-shot application timings. GPU fits include synchronization and reading the coefficients.
+
+These implementations differ in algorithms, data layouts, and API overhead. scikit-learn provides a general estimator with input validation; NumPy and MLX use a specialized one-feature formula. C and Node.js port the pairwise algorithm over flat arrays on one CPU thread. Python CPU libraries were allowed up to 12 threads; actual utilization depends on the operation. The synthetic data repeats every 4,096 rows, so these results do not establish performance on other ML workloads.
+
+† MLX CPU at one million rows had a maximum coefficient error of **0.0000572**, exceeding this benchmark’s absolute **0.00001** tolerance. Its timing is retained for transparency, not treated as an equivalent-accuracy comparison. Every other entry passed. Floating-point errors and all individual samples are recorded.
+
+**Reproduce and inspect:** [benchmark instructions and methodology](benchmark/README.md), [full table with p10–p90 ranges](benchmark/results/2026-09-18-m2-max.md), and [raw samples, environment, source hashes, and correctness checks](benchmark/results/2026-09-18-m2-max.json).
+
+```sh
+uv venv build/benchmark-venv --python 3.12
+uv pip install --python build/benchmark-venv/bin/python -r benchmark/requirements.txt
+build/benchmark-venv/bin/python benchmark/run.py
+```
+
 ## Tests and proofs
 
 ```sh

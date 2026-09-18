@@ -5,6 +5,13 @@ Single-feature ordinary least squares with an intercept, using the public
 fresh process, varies execution order with a recorded random seed, and keeps
 all timing samples and coefficient checks.
 
+## Published run
+
+[Apple M2 Max, September 18, 2026](results/2026-09-18-m2-max.md) ·
+[raw JSON](results/2026-09-18-m2-max.json). The run used the defaults below from
+a clean commit; all sample counts and source hashes are recorded. This was a
+daily-use workstation, not an isolated lab environment.
+
 ## Run on Apple Silicon
 
 Prerequisites: Bend 2.0.5, clang 19+ with working Metal tooling, Node.js, and
